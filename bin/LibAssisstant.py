@@ -118,6 +118,10 @@ if __name__ == '__main__':
     exec_time[4] = int(Config['runtime'][1])
     exec_time = time.mktime(tuple(exec_time))
 
+    # info confirm
+    print('will reserve {}th floor {} {} for you at {}'.format(Config['floor'], Config['position'], Config['seat_list'], time.asctime(time.localtime(exec_time))))
+    print('please keep this window open...')
+
     scheduler = sched.scheduler(time.time, time.sleep)
     scheduler.enterabs(exec_time, 1, seat_reservation, argument=(Config, passwd))
     scheduler.run()
