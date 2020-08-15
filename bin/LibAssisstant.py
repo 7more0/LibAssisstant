@@ -87,6 +87,7 @@ def seat_reservation(Config, passwd, end_time=60):
 def read_conf(path='./Config.conf'):
     conf_file = open(path)
     lines = conf_file.readlines()
+    conf_file.close()
     Config = {}
     for line in lines:
         if '#' in line:
