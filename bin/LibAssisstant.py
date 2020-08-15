@@ -10,7 +10,7 @@ import time
 import sched
 
 
-def establish_connection(url, key_class, end_time=60, executable_path=r'E:\Outpost\Packages\geckodriver.exe'):
+def establish_connection(url, key_class, end_time=60, executable_path=r''):
     # for initial connection
     options = Options()
     options.add_argument('--headless')
@@ -43,14 +43,14 @@ def wait_response(driver, wait_class, method='class', end_time=60):
 
 def seat_reservation(Config, passwd, end_time=60):
     # login
-    driver = establish_connection(Config['url'], 'account_login', end_time)
+    driver = establish_connection(Config['url'], 'account_login', end_time, executable_path=Config['executable_path'])
     if driver != 0:
         driver.find_element_by_name('username').send_keys(Config['username'])
         driver.find_element_by_name('pwd').send_keys(passwd)
         driver.find_element_by_class_name('account_login').click()
     else:
         print('Error: connection failed!')
-        exit()
+        return 0
 
     # function confirm page
     wait_response(driver, 'col-sm-12')  # main form
@@ -109,17 +109,25 @@ if __name__ == '__main__':
     # ---------- config ---------- #
     Config = read_conf('./Config.conf')
     passwd = getpass.getpass('passwd: ')
+    confirm_passwd = getpass.getpass('confirm your passwd: ')
+    while confirm_passwd != passwd:
+        passwd = getpass.getpass('passwd: ')
+        confirm_passwd = getpass.getpass('confirm your passwd: ')
     end_time = 60
 
     start_time = time.localtime(time.time())
     exec_time = list(start_time)
-    exec_time[2] += 1
-    exec_time[3] = int(Config['runtime'][0])
-    exec_time[4] = int(Config['runtime'][1])
+    exec_time[2] += int(Config['runtime'][0])
+    exec_time[3] = int(Config['runtime'][1])
+    exec_time[4] = int(Config['runtime'][2])
     exec_time = time.mktime(tuple(exec_time))
 
     # info confirm
-    print('will reserve {}th floor {} {} for you at {}'.format(Config['floor'], Config['position'], Config['seat_list'], time.asctime(time.localtime(exec_time))))
+    print('|Info Confirm|')
+    print('User: {}'.format(Config['username']))
+    print('Reserve place: {}th floor, {}'.format(Config['floor'], Config['position']))
+    print('Alternative seats: {}'.format(','.join(Config['seat_list'])))
+    print('will reserve your seat for you at {}'.format(time.asctime(time.localtime(exec_time))))
     print('please keep this window open...')
 
     scheduler = sched.scheduler(time.time, time.sleep)
